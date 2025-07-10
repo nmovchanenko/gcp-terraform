@@ -18,8 +18,6 @@ provider "google" {
 }
 
 # This is the default provider for all other resources.
-# It is configured to use the project we create.
 provider "google" {
-  project = google_project.main.project_id
-  region  = var.project_region
+  region = var.project_region
 }
