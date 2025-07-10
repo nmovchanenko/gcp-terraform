@@ -26,3 +26,5 @@ terraform.rc
 
 # Ignore sensitive files
 secrets.auto.tfvars 
+
+GEMINI.md
