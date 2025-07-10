@@ -1,6 +1,16 @@
-variable "project_ids" {
-  description = "A map of environment names to GCP project IDs."
-  type        = map(string)
+variable "project_name" {
+  description = "The display name of the GCP project."
+  type        = string
+}
+
+variable "project_id_prefix" {
+  description = "A prefix for the GCP project ID."
+  type        = string
+}
+
+variable "billing_account_id" {
+  description = "The ID of the billing account to link the project to."
+  type        = string
 }
 
 variable "project_region" {

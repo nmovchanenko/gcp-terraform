@@ -8,6 +8,6 @@ terraform {
 }
 
 provider "google" {
-  project = var.project_ids[terraform.workspace]
+  project = google_project.main.project_id
   region  = var.project_region
 }
