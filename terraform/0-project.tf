@@ -3,12 +3,14 @@ resource "random_id" "suffix" {
 }
 
 resource "google_project" "main" {
+  provider        = google.project_creator
   name            = "${var.project_name} (${terraform.workspace})"
   project_id      = "${var.project_id_prefix}-${terraform.workspace}-${random_id.suffix.hex}"
   billing_account = var.billing_account_id
 }
 
 resource "google_project_service" "compute" {
+  provider                   = google.project_creator
   project                    = google_project.main.project_id
   service                    = "compute.googleapis.com"
   disable_dependent_services = true
