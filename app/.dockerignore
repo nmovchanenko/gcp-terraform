@@ -1,0 +1,17 @@
+# Dependencies
+node_modules
+
+# SvelteKit build artifacts
+.svelte-kit
+build
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# IDE / Editor
+.vscode
+
+# OS-specific
+.DS_Store
