@@ -18,3 +18,10 @@ variable "project_region" {
   type        = string
   default     = "us-central1"
 }
+
+variable "db_password" {
+  description = "The password for the Cloud SQL database user."
+  type        = string
+  sensitive   = true
+  default     = "a-secure-password-for-now"
+}
