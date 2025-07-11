@@ -69,6 +69,6 @@ resource "google_cloud_run_v2_service_iam_binding" "allow_unauthenticated" {
   location = google_cloud_run_v2_service.main.location
   name     = google_cloud_run_v2_service.main.name
 
-  role   = "roles/run.invoker"
+  role    = "roles/run.invoker"
   members = ["allUsers"]
 }
