@@ -1,8 +1,25 @@
-# 1. Enable the Cloud Run API
+# 1. Enable the Cloud Run and Artifact Registry APIs
 resource "google_project_service" "run" {
   project                    = google_project.main.project_id
   service                    = "run.googleapis.com"
   disable_dependent_services = true
+}
+
+resource "google_project_service" "artifactregistry" {
+  project                    = google_project.main.project_id
+  service                    = "artifactregistry.googleapis.com"
+  disable_dependent_services = true
+}
+
+# 2. Create an Artifact Registry repository to store Docker images
+resource "google_artifact_registry_repository" "main" {
+  project       = google_project.main.project_id
+  location      = var.project_region
+  repository_id = "${terraform.workspace}-sveltekit-repo"
+  description   = "Docker repository for SvelteKit application"
+  format        = "DOCKER"
+
+  depends_on = [google_project_service.artifactregistry]
 }
 
 # 2. Create the Cloud Run Service
