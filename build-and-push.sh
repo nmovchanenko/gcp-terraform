@@ -7,7 +7,7 @@ echo "--- Building and Pushing Docker Image ---"
 
 # Ensure Terraform is initialized and outputs are available
 echo "Running terraform init and apply to ensure outputs are up-to-date..."
-# (cd terraform && terraform init -upgrade && terraform apply -auto-approve)
+(cd terraform && terraform init -upgrade && terraform apply -auto-approve)
 
 # Get Terraform outputs
 echo "Retrieving Terraform outputs..."
