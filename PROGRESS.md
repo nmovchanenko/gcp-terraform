@@ -127,3 +127,29 @@ This phase focused on preparing our SvelteKit application for deployment and int
 ### Current State:
 
 We have a containerized SvelteKit application, a dedicated Artifact Registry for its images, and the Terraform configuration is updated to deploy this application to Cloud Run. The application is successfully running on Cloud Run.
+
+## Phase 5: Collaboration and State Management
+
+To prepare the project for team collaboration and automated CI/CD, we professionalized the Terraform workflow.
+
+### Key Accomplishments:
+
+1.  **Configured GCS Remote Backend:**
+    - The Terraform state is no longer stored in local files. It is now securely stored in a shared Google Cloud Storage (GCS) bucket.
+    - This was a critical step to enable collaboration and prevent state divergence between developers.
+    - We established the best practice of creating the backend infrastructure (the GCS bucket) outside of the main Terraform configuration to solve the "chicken and egg" problem.
+
+2.  **Enabled State Locking:**
+    - By using the GCS backend, Terraform now automatically locks the state file during any read/write operations. This prevents multiple users or automation scripts from running `apply` at the same time and corrupting the infrastructure state.
+
+3.  **Standardized Authentication:**
+    - We resolved authentication issues by using `gcloud auth application-default login`. This ensures that Terraform has the necessary permissions to act on behalf of the user in a standard, repeatable way.
+
+4.  **Implemented Secure Variable Handling:**
+    - Instead of hardcoding secrets or telling users to edit `.tf` files, we created a `terraform.tfvars.example` file.
+    - The `.gitignore` file was configured to ignore `*.tfvars` files, preventing accidental commitment of secrets.
+    - This establishes a secure and clear process for new developers to configure their local environment.
+
+### Current State:
+
+Our Terraform project is now configured according to industry best practices for team collaboration. The state is managed centrally and securely, and we have a robust, documented process for onboarding new developers and managing secret variables. The project is fully prepared for the final step: CI/CD automation.
