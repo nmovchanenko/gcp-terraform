@@ -79,3 +79,39 @@ We have deployed the serving layer for our application using Cloud Run, a server
 ### Current State:
 
 Our Terraform setup is now feature-complete for the core infrastructure. It automatically provisions a GCP Project with a VPC, a private PostgreSQL database, and a scalable Cloud Run service to host our application. The final step is to replace the placeholder container with our actual SvelteKit application.
+
+## Phase 4: Application Development & Containerization
+
+This phase focused on preparing our SvelteKit application for deployment and integrating it with our GCP infrastructure.
+
+### Key Accomplishments:
+
+1.  **SvelteKit Application Scaffolding:**
+    *   A basic SvelteKit application was scaffolded, configured with TypeScript and the Node.js adapter for server-side rendering.
+    *   Drizzle ORM was integrated, including initial schema definition and database connection setup.
+
+2.  **Dockerization of the SvelteKit App:**
+    *   A multi-stage `Dockerfile` was created to build a lightweight and efficient production container image.
+    *   Best practices for Docker layer caching were implemented.
+    *   A `.dockerignore` file was added to exclude unnecessary files from the build context (e.g., `node_modules`, `.svelte-kit`).
+    *   The container was configured to run in `production` mode (`NODE_ENV=production`) and listen on port `8080` to align with Cloud Run's defaults.
+    *   The `ENTRYPOINT` and `CMD` instructions were explicitly defined for robust container execution.
+
+3.  **Artifact Registry Setup:**
+    *   Terraform configuration was updated to enable the Artifact Registry API and provision a dedicated Docker repository for our application images.
+    *   `outputs.tf` was enhanced to expose the GCP region, project ID, and repository ID for easier scripting.
+
+4.  **Automated Image Build and Push Script:**
+    *   A `build-and-push.sh` script was created to automate the process of building the Docker image and pushing it to Artifact Registry, leveraging Terraform outputs.
+
+5.  **Cloud Run Deployment Attempts & Debugging:**
+    *   The Cloud Run service was updated in Terraform to point to our SvelteKit application image in Artifact Registry.
+    *   Encountered and addressed several common deployment issues:
+        *   Provided the `DATABASE_URL` environment variable to the Cloud Run service.
+        *   Corrected the `env` block syntax in the Terraform configuration.
+        *   Granted the Cloud Run service account the `roles/cloudsql.client` IAM permission to allow database connectivity.
+        *   Addressed an `exec format error` by explicitly setting the `ENTRYPOINT` in the `Dockerfile`.
+
+### Current State:
+
+We have a containerized SvelteKit application, a dedicated Artifact Registry for its images, and the Terraform configuration is updated to deploy this application to Cloud Run. While the application is not yet successfully running on Cloud Run, we have systematically debugged and applied several critical fixes, bringing us very close to a successful deployment. The next steps involve further debugging the application's startup within Cloud Run and implementing the remaining project goals.
