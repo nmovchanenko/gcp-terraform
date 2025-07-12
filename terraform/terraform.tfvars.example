@@ -1,0 +1,25 @@
+# ---------------------------------------------------------------------------
+# Example Variables - Copy this file to terraform.tfvars and fill in the values.
+# ---------------------------------------------------------------------------
+
+# The display name for the GCP project (e.g., "SvelteKit App Development")
+project_name = "SvelteKit App"
+
+# A short prefix for the globally unique GCP project ID.
+project_id_prefix = "gcp-sveltek"
+
+# The primary region for project resources.
+project_region = "us-central1"
+
+# ---------------------------- S E C R E T S ----------------------------
+# The following variables are sensitive and should not be committed to Git.
+# You will be provided these values securely by your team lead.
+# ---------------------------------------------------------------------------
+
+# The ID of the billing account to associate with the new project.
+# Get this from your GCP Billing console.
+billing_account_id = "YOUR_BILLING_ACCOUNT_ID_HERE"
+
+# The password for the Cloud SQL database user.
+# It is recommended to use a randomly generated strong password.
+db_password = "YOUR_DATABASE_PASSWORD_HERE"
