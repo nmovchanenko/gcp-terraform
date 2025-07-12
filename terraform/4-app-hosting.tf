@@ -30,7 +30,7 @@ resource "google_cloud_run_v2_service" "main" {
 
   template {
     containers {
-      image = "${var.project_region}-docker.pkg.dev/${google_project.main.project_id}/${google_artifact_registry_repository.main.repository_id}/sveltekit-app:latest"
+      image = "us-docker.pkg.dev/cloudrun/container/hello" // "${var.project_region}-docker.pkg.dev/${google_project.main.project_id}/${google_artifact_registry_repository.main.repository_id}/sveltekit-app:latest"
       ports {
         container_port = 8080
       }
