@@ -31,6 +31,13 @@ resource "google_cloud_run_v2_service" "main" {
   template {
     containers {
       image = "${var.project_region}-docker.pkg.dev/${google_project.main.project_id}/${google_artifact_registry_repository.main.repository_id}/sveltekit-app:latest"
+      ports {
+        container_port = 8080
+      }
+      env {
+        name  = "DATABASE_URL"
+        value = "postgresql://${google_sql_user.app_user.name}:${var.db_password}@/${google_sql_database.app_db.name}?host=/cloudsql/${google_sql_database_instance.main.connection_name}"
+      }
     }
 
     # This section configures the direct VPC connection to Cloud SQL
@@ -71,4 +78,11 @@ resource "google_cloud_run_v2_service_iam_binding" "allow_unauthenticated" {
 
   role    = "roles/run.invoker"
   members = ["allUsers"]
+}
+
+# Grant the Cloud Run service account permission to connect to Cloud SQL
+resource "google_project_iam_member" "cloud_run_cloudsql_client" {
+  project = google_project.main.project_id
+  role    = "roles/cloudsql.client"
+  member  = "serviceAccount:${google_cloud_run_v2_service.main.template.0.service_account}"
 }
