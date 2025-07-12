@@ -22,11 +22,8 @@ echo "Image name: ${IMAGE_NAME}"
 # Build the Docker image
 echo "Building Docker image..."
 # The build context is the 'app' directory, where the Dockerfile and source code reside.
-docker build -t "${IMAGE_NAME}" -f app/Dockerfile ./app
-
-# Push the Docker image to Artifact Registry
-echo "Pushing Docker image to Artifact Registry..."
-docker push "${IMAGE_NAME}"
+# The --push flag tells buildx to push the image to the registry after a successful build.
+docker buildx build --platform linux/amd64 -t "${IMAGE_NAME}" -f app/Dockerfile ./app --push
 
 echo "--- Docker Image Build and Push Complete ---"
 echo "Image pushed: ${IMAGE_NAME}"
