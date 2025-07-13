@@ -35,6 +35,9 @@ jobs:
       - name: "Setup Terraform"
         uses: "hashicorp/setup-terraform@v3"
 
+      - name: "Select Workspace"
+        run: "terraform workspace select development"
+
       - name: "Terraform Init"
         id: "init"
         run: "terraform init"
@@ -84,6 +87,9 @@ jobs:
 
       - name: "Setup Terraform"
         uses: "hashicorp/setup-terraform@v3"
+
+      - name: "Select Workspace"
+        run: "terraform workspace select development"
 
       - name: "Terraform Init"
         id: "init"
