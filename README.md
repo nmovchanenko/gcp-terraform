@@ -4,97 +4,63 @@ This project provides a complete, production-ready infrastructure setup on Googl
 
 ## Core Concepts
 
-### Remote State Backend
-This project is configured to use a **GCS remote backend**. This is a best practice that provides:
-- **Security:** The state file, which contains sensitive information, is stored securely in a Google Cloud Storage bucket.
-- **Collaboration:** A remote backend allows multiple team members to work on the same infrastructure safely.
-- **Locking:** Terraform automatically locks the state file during operations, preventing concurrent runs from corrupting the state.
+### CI/CD with GitHub Actions
+This project is configured with a complete CI/CD pipeline using GitHub Actions to automate infrastructure management.
+- **Plan on Pull Request:** When a pull request is opened, the workflow automatically runs `terraform plan` and posts the output as a comment on the PR for review.
+- **Apply on Merge:** When a pull request is merged to the `main` branch, the workflow automatically runs `terraform apply` to deploy the changes to the `development` environment.
+- **Authentication:** The pipeline uses a secure, passwordless OIDC connection between GitHub Actions and GCP via Workload Identity Federation.
 
-Before you can initialize Terraform, you must first create a GCS bucket for this purpose. This is a one-time setup task.
+### Remote State Backend
+Terraform state is stored securely in a GCS remote backend, which enables team collaboration and state locking.
 
 ### Workspaces
-We use Terraform workspaces to manage separate environments (e.g., `development`, `staging`). Each workspace gets its own isolated set of resources and its own state file within the GCS backend.
+We use Terraform workspaces to manage separate environments (e.g., `development`, `staging`). Each workspace gets its own isolated set of resources.
 
 ## Prerequisites
 - [Google Cloud SDK (`gcloud` CLI)](https://cloud.google.com/sdk/docs/install)
 - [Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli)
 - [Docker](https://www.docker.com/get-started)
 
+## Initial Project Setup (First-Time Use Only)
+These steps are for the very first person setting up this project.
+
+1.  **Configure Workload Identity Federation:** Follow the internal documentation to set up the GCS backend bucket, the `github-actions-deployer` service account, and the Workload Identity Federation trust between GCP and the GitHub repository.
+2.  **Create GitHub Secrets:** In the GitHub repository settings (`Settings > Secrets and variables > Actions`), create the following repository secrets:
+    - `TF_VAR_billing_account_id`: Your GCP Billing Account ID.
+    - `TF_VAR_db_password`: The desired password for the Cloud SQL database.
+
 ## Onboarding a New Developer
-Here is the step-by-step guide for any developer to get started with this project.
+Here is the step-by-step guide for any new developer to get started with local development.
 
-### Step 1: Get the Code
-Clone the repository to your local machine.
-```sh
-git clone <your-repository-url>
-cd <repository-directory>
-```
+1.  **Get the Code:** `git clone <your-repository-url>`
+2.  **Authenticate with GCP:** `gcloud auth application-default login`
+3.  **Configure Local Variables:**
+    - `cp terraform/terraform.tfvars.example terraform/terraform.tfvars`
+    - Edit `terraform/terraform.tfvars` and fill in the secret values provided by your team lead.
+4.  **Initialize Terraform:** `cd terraform && terraform init`
+5.  **Select Workspace:** `terraform workspace select development`
 
-### Step 2: Authenticate with GCP
-You must authenticate your local machine with GCP. This allows Terraform and other tools to manage resources on your behalf.
-```sh
-gcloud auth application-default login
-```
-Follow the prompts in your browser to log in to your Google account.
-
-### Step 3: Configure Local Variables
-This project uses a `terraform.tfvars` file for variables, which is ignored by Git to keep secrets safe.
-
-1.  **Copy the example file:**
-    ```sh
-    cp terraform/terraform.tfvars.example terraform/terraform.tfvars
-    ```
-2.  **Edit `terraform/terraform.tfvars`:**
-    Open the new `terraform.tfvars` file and fill in the secret values (e.g., `billing_account_id`). You will get these from your team lead.
-
-### Step 4: Initialize Terraform
-Navigate to the `terraform` directory and run `init`. This downloads the necessary plugins and connects to the GCS remote backend defined in `backend.tf`.
-```sh
-cd terraform
-terraform init
-```
-
-### Step 5: Select a Workspace
-If you are working on an existing environment, select the corresponding workspace.
-```sh
-terraform workspace select development
-```
-If you are creating a brand new environment, create a new workspace:
-```sh
-terraform workspace new <environment_name>
-```
-
-You are now ready to plan and apply changes!
+You are now ready to make changes locally.
 
 ## Day-to-Day Workflow
 
-### Provisioning or Updating Infrastructure
-1.  **Navigate to the Terraform directory:** `cd terraform`
-2.  **Ensure you are in the correct workspace:** `terraform workspace select <environment_name>`
-3.  **Plan the changes:** `terraform plan`
-4.  **Apply the changes:** `terraform apply`
+### Making Infrastructure Changes
+1.  **Create a new branch:** `git checkout -b my-feature`
+2.  **Make your changes** to the `.tf` files in the `terraform/` directory.
+3.  **Commit and push** your branch.
+4.  **Open a Pull Request** against the `main` branch.
+5.  **Review the Plan:** The GitHub Actions bot will automatically run `terraform plan` and add the output as a comment on your PR. Verify that the changes are what you expect.
+6.  **Merge:** Once approved, merge the pull request. The GitHub Actions bot will automatically run `terraform apply` to deploy your changes.
 
 ### Deploying the Application
-1.  **Configure Docker:**
-    You only need to do this once per region. This command configures Docker to authenticate with Artifact Registry.
-    ```sh
-    gcloud auth configure-docker $(terraform output -raw project_region)-docker.pkg.dev
-    ```
-2.  **Build and Push the Docker Image:**
-    From the **root of the project**, run the helper script:
-    ```sh
-    ./build-and-push.sh
-    ```
-3.  **Update the Image in Terraform:**
-    The script will output the new image URI. Update the `image` argument in the `google_cloud_run_v2_service` resource in `terraform/4-app-hosting.tf` with this new URI.
-4.  **Apply the Update:**
-    ```sh
-    terraform apply
-    ```
-    Terraform will detect the change to the Cloud Run service and deploy the new container image.
+1.  **Build and Push the Docker Image:**
+    - Configure Docker for GCP (one-time setup): `gcloud auth configure-docker $(terraform -chdir=terraform output -raw project_region)-docker.pkg.dev`
+    - From the project root, run: `./build-and-push.sh`
+2.  **Update the Image in Terraform:**
+    - In `terraform/4-app-hosting.tf`, update the `image` argument in the `google_cloud_run_v2_service` resource with the new image URI from the script output.
+3.  **Commit and push** this change through the PR workflow described above.
 
 ## Infrastructure Overview
-Running `terraform apply` creates the following resources:
 - **GCP Project:** A new, isolated project for your environment.
 - **VPC Network:** A private network for your resources.
 - **Cloud SQL for PostgreSQL:** A managed, private database instance.
