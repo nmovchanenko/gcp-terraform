@@ -19,3 +19,12 @@ resource "google_project_service" "compute" {
   # tries to enable the API before the project is fully ready.
   depends_on = [google_project.main]
 }
+
+resource "google_project_service" "iam_credentials" {
+  provider                   = google.project_creator
+  project                    = google_project.main.project_id
+  service                    = "iamcredentials.googleapis.com"
+  disable_dependent_services = true
+
+  depends_on = [google_project.main]
+}
