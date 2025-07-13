@@ -28,3 +28,4 @@ terraform.rc
 secrets.auto.tfvars 
 
 GEMINI.md
+setup-wif.sh
